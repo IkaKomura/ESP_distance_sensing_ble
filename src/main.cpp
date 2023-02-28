@@ -5,6 +5,9 @@
     #include "ble_server.hpp"
 #elif CLIENT_MODE
     #include "ble_client.hpp"
+#elif TTGO_CLIENT_MODE
+    #include "ble_ttgo_client.hpp"
+    #include <TFT_eSPI.h>
 #endif
 
 /****************************************************************
@@ -30,6 +33,12 @@ void setup() {
     Serial.print("BLE client started...");
     pinMode(ledPin, OUTPUT);
     blinkStartup();
+#elif TTGO_CLIENT_MODE
+    Serial.print("Setting up BLE ttgo client...");
+    start_ttgo_bluetooth_client();
+    Serial.print("BLE ttgoclient started...");
+    pinMode(ledPin, OUTPUT);
+    blinkStartup();    
 #endif
 }
 
@@ -38,6 +47,9 @@ void loop() {
 #if SERVER_MODE
     /**Nothing to do here */
 #elif CLIENT_MODE
+    do_client_tasks();
+    publish_rssi();
+#elif TTGO_CLIENT_MODE
     do_client_tasks();
     publish_rssi();
 #endif
