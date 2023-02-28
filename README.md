@@ -5,6 +5,7 @@ This is a fork from: https://github.com/nacansino/distance_sensing_ble
 A Distance tracing device prototype using ESP32 devices.
 
 ## Goals of this project
+🎭↔️🎭
 
 This is a custom fork of the BLE Contact Tracing Device project that has been modified for the purpose of tracking people or objects in a theatre space. The main goal of the project is to rougly detect the distance between devices in order to track the location of individuals or objects in the theatre.
 I will later implement a way to use that data creatively.
