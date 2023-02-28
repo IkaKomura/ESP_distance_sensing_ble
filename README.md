@@ -1,51 +1,31 @@
-# BLE Contact Tracing Device
+# BLE Distance Tracing Device - Custom Fork
 
-[![Build Status](https://travis-ci.com/nacansino/distance_sensing_ble.svg?token=gRaedFrvoyuiPGHhfvoK&branch=master)](https://travis-ci.com/nacansino/distance_sensing_ble)
+This is a fork from: https://github.com/nacansino/distance_sensing_ble
 
-A contact tracing device prototype using ESP32 devices.
+A Distance tracing device prototype using ESP32 devices.
 
 ## Goals of this project
 
-To help abate the spread of COVID-19, this project aims to develop a device capable of accurately detecting contact and hope to inform the user his/her risk of infection.
+This is a custom fork of the BLE Contact Tracing Device project that has been modified for the purpose of tracking people or objects in a theatre space. The main goal of the project is to rougly detect the distance between devices in order to track the location of individuals or objects in the theatre.
+I will later implement a way to use that data creatively.
 
-## Tech stack
+## Changes Made
 
-The following materials and software are used for the development.
+Changed the code for automatic connection and reconnection to the server.
+added a debug function, BlinkLED with a led  that's blinking in a rate based on the RSSI value.
+added in definitions for Unlikely Maker Feather S3 board
+added more serial monitor debug outputs.
+## Tech Stack
 
-- ESP32 Development Board (BLE 5.0 capable)
-- PlatformIO on Visual Studio Code
+The following materials and software were used for the development:
 
-## Methodology
+ESP32 Development Board (BLE 5.0 capable)
+PlatformIO on Visual Studio Code
 
-This project uses RSSI measurement between two BLE nodes to back-calculate the distance between the two. This distance information will then be use to judge contact between the persons holding the nodes/devices.
+## Original Project
 
-## Progress
-
-- As of today (9/13), I managed to build the firmware for a rough prototype that demonstrates that we can extract the measured RSSI of a client device connecting to a server device, both of which are running the Bluetooth Low Energy protocol. This RSSI will be used to infer the distance between the two nodes.
-
-- We are still not calculating the distance as we need to calibrate and fit the equation relating the RSSI and distance.
-
-*Dirty* setup for measuring distance:
-
-![setup](img/setup.jpg)
-
-- We tried measuring some RSSI from some known distance in a fixed relative position of the boards (as shown in the photos). RSSI data is taken every 500 milliseconds for 40 seconds and graphed just to get a quick grasp of how the data would look like:
-
-*Spurious* data:
-
-![spurious_data](img/spurious_data.PNG)
-
-Looking at the collected data above, as we go farther, the noisier the data gets. I neither have done a detailed analysis of the data nor diligent data collection because of physical limitations; the above data was just collected to get a grasp of the measurement variation. Data is available [here](data/distance_measurement_data.xlsx)
-
-## Other notes and perceived challenges
-
-- The major difference of this project from other existing mobile apps is that this aims to overcome the mismatch caused by using different Bluetooth devices (e.g. signal strength measurement between two different smartphones).
-- We need to accurately collect the signal equation for converting RSSI to distance. This necessitates us to do it in a place where there are little to no external effects (e.g. an anechoic chamber). Moreover, we also need to measure and review the RSSI measurements for different permutations of the relative position of the two devices.
-- How far is a "contact"? Is judging contact based on a numerical distance threshold (e.g. 1.9m or 2.1m) the right approach? Maybe we should rather use probabilistic models (machine learning?) to handle the judgment for us.
-- We still haven't taken into account the effect of obstruction of the human body to the measured RSSI. Is RSSI measurement the right way to do distance measurement?
-- We need an efficient way to store these information to the memory of the device.
-- Need to manage power consumed by the bluetooth beacon.
-
+https://github.com/nacansino/distance_sensing_ble
+This project is based on the BLE Contact Tracing Device project, which aims to develop a device capable of accurately detecting contact between individuals in order to help abate the spread of COVID-19. For more information, please refer to the original project's repository.
 ## Related Projects
 
 Just throwing out related projects and useful information here:
