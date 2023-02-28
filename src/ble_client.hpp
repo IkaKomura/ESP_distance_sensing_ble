@@ -17,25 +17,50 @@
  * Definitions and Constants
  ***************************************************************/
 static constexpr char DEVICE_NAME[]  = "Distance_Client";
+static int rssi_measurement = -9999; // initialize to an invalid value
+static bool valid_rssi_received = false;
+static unsigned long rssi_invalid_start_time = 0;
+static int resetThreshold = -110;
+static constexpr unsigned MAX_RSSI_INVALID_PERIOD_MS = 100;
+// const int ledPin = 13; // LED connected to digital pin 13
 
 /****************************************************************
  * Function Prototypes
  ***************************************************************/
-/**Empty here */
 
+           /*LED Blinking Code */
+static void BlinkLED(int r){ // r is the RSSI value, LED will blink faster as the RSSI value gets closer to 0
+
+        // Map the RSSI measurement to a blinking rate between 1 and 100 Hz.
+        int blink_rate = map(r, -100, -17, 1, 500);
+
+        // Calculate the time period for one on/off cycle based on the blinking rate.
+        unsigned long cycle_period_ms = (10000 / (2 * blink_rate));
+
+        // Blink the LED on pin 13.
+        static bool led_state = false;
+        static unsigned long last_toggle_ms = millis();
+        if (millis() - last_toggle_ms >= cycle_period_ms)
+        {
+            led_state = !led_state;
+            digitalWrite(ledPin, led_state);
+            last_toggle_ms = millis();
+        }
+    }
 /****************************************************************
  * Global Variables
  ***************************************************************/
 static boolean doConnect        = false;
 static boolean connected        = false;
 static boolean doScan           = false;
-static int     rssi_measurement = -9999;
+
 static BLEAdvertisedDevice* myDevice;
 static BLEClient*           pClient;
 
 /****************************************************************
  * Classes
  ***************************************************************/
+
 
 class MyClientCallback : public BLEClientCallbacks {
   void onConnect(BLEClient* pclient) {
@@ -79,9 +104,10 @@ void start_bluetooth_client()
 {
     BLEDevice::init(DEVICE_NAME);
 
-    // Retrieve a Scanner and set the callback we want to use to be informed when we
-    // have detected a new device.  Specify that we want active scanning and start the
-    // scan to run for 5 seconds.
+    /* Retrieve a Scanner and set the callback we want to use to be informed when we
+     have detected a new device.  Specify that we want active scanning and start the
+     scan to run for 5 seconds.*/
+
     BLEScan* pBLEScan = BLEDevice::getScan();
     pBLEScan->setAdvertisedDeviceCallbacks(new MyAdvertisedDeviceCallbacks());
     pBLEScan->setInterval(1349);
@@ -124,8 +150,9 @@ bool connectToServer() {
 
 void do_client_tasks()
 {
-    static constexpr unsigned CLIENT_TASK_PERIOD_MS = 500;
+    static constexpr unsigned CLIENT_TASK_PERIOD_MS = 100;
     static unsigned long last_called = millis();
+    static boolean toPublishRSSI = false;
 
     if(millis() - last_called < CLIENT_TASK_PERIOD_MS)
     {
@@ -133,31 +160,49 @@ void do_client_tasks()
         return;
     }
 
-    // If the flag "doConnect" is true then we have scanned for and found the desired
-    // BLE Server with which we wish to connect.  Now we connect to it.  Once we are 
-    // connected we set the connected flag to be true.
+    /* If the flag "doConnect" is true then we have scanned for and found the desired
+        BLE Server with which we wish to connect.  Now we connect to it.  Once we are 
+        connected we set the connected flag to be true.*/
     if (doConnect == true) {
         if (connectToServer()) {
         Serial.println("We are now connected to the BLE Server.");
+         toPublishRSSI = true;
+        //Serial.println("Please enter a command: start or end");
+        Serial.println("THIS IS THE CLIENT");
         } else {
         Serial.println("We have failed to connect to the server; there is nothin more we will do.");
         }
         doConnect = false;
     }
 
-    // If we are connected to a peer BLE Server, update the characteristic each time we are reached
-    // with the current time since boot.
+    /* If we are connected to a peer BLE Server, update the characteristic each time we are reached
+     with the current time since boot. */
     if (connected) 
     {
     
-        String newValue = "Time since boot: " + String(millis()/1000);
+        String newValue = "Time since boot: " + String(millis()/500);
     
         /**Do service tasks here */  
-        if (myDevice->haveRSSI()){
-
-            rssi_measurement = (int)pClient->getRssi();
-        
+        if (myDevice->haveRSSI()) {
+    rssi_measurement = (int)pClient->getRssi();
+//New shit!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        if (rssi_measurement >= resetThreshold) {
+        // valid RSSI measurement
+        rssi_invalid_start_time = 0;
+        BlinkLED(rssi_measurement);
+    } else {
+        // invalid RSSI measurement
+        unsigned long current_time = millis();
+        if (rssi_invalid_start_time == 0) {
+            // start of invalid RSSI measurement
+            rssi_invalid_start_time = current_time;
+        } else if (current_time - rssi_invalid_start_time >= MAX_RSSI_INVALID_PERIOD_MS) {
+            // RSSI measurement has been invalid for too long, restart BLE client
+            Serial.println("Resetting");
+            ESP.restart();
         }
+    }
+}
     
     }
     else if(doScan)
@@ -170,20 +215,25 @@ void do_client_tasks()
 
 void publish_rssi()
 {
-    static constexpr unsigned RSSI_PUBLISH_PERIOD_MS = 500;
+    static constexpr unsigned RSSI_PUBLISH_PERIOD_MS = 100;
     static String char_buffer;
 
-    static unsigned long last_publish_ms    = millis();
-    static boolean       toPublishRSSI      = false;
+    static unsigned long last_publish_ms = millis();
+    static boolean toPublishRSSI = true;
     
     if(toPublishRSSI && ((millis() - last_publish_ms) >= RSSI_PUBLISH_PERIOD_MS))
     {
         Serial.printf("Rssi: %d \n", rssi_measurement);
         last_publish_ms = millis();
+
+         
     }
+
+
     
     /**Turn on/off */
-    if(Serial.available())
+
+    /* if(Serial.available())
     {
         String user_cmd = Serial.readString();
         
@@ -198,5 +248,5 @@ void publish_rssi()
         {
             toPublishRSSI = false;
         }
-    }
+    } */
 }
