@@ -1,0 +1,4 @@
+
+This directory contains only the main ccp.
+
+The code for the individual devices is found in the "include" folder.
