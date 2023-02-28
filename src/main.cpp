@@ -1,16 +1,6 @@
 #include <Arduino.h>
 
-const int ledPin = 13; // LED connected to digital pin 13
-int sBlinks = 10; // Number of blinks on startup
-int strobe = 10; // Strobe delay in milliseconds
-void blinkStartup() {
-for (int i = 0; i <= sBlinks; i++) {
-  digitalWrite(ledPin,HIGH);
-  delay(strobe);
-  digitalWrite(ledPin,LOW);
-  delay(strobe);
-  }
-}
+
 #if SERVER_MODE
     #include "ble_server.hpp"
 #elif CLIENT_MODE

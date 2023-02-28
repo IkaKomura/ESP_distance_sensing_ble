@@ -22,31 +22,29 @@ static bool valid_rssi_received = false;
 static unsigned long rssi_invalid_start_time = 0;
 static int resetThreshold = -110;
 static constexpr unsigned MAX_RSSI_INVALID_PERIOD_MS = 100;
-// const int ledPin = 13; // LED connected to digital pin 13
+
 
 /****************************************************************
  * Function Prototypes
  ***************************************************************/
 
-           /*LED Blinking Code */
-static void BlinkLED(int r){ // r is the RSSI value, LED will blink faster as the RSSI value gets closer to 0
+ /* LED Blinking Code */
+static void BlinkLED(int r) {
+  // Map the RSSI measurement to a blinking rate between 1 and 100 Hz using a logarithmic scale.
+  int blink_rate = 1 + (int)(99.0 * (1.0 - log10(-r))); // r is negative, so we need to use log10(-r)
 
-        // Map the RSSI measurement to a blinking rate between 1 and 100 Hz.
-        int blink_rate = map(r, -100, -17, 1, 500);
+  // Calculate the time period for one on/off cycle based on the blinking rate.
+  unsigned long cycle_period_ms = (10000 / (2 * blink_rate));
 
-        // Calculate the time period for one on/off cycle based on the blinking rate.
-        unsigned long cycle_period_ms = (10000 / (2 * blink_rate));
-
-        // Blink the LED on pin 13.
-        static bool led_state = false;
-        static unsigned long last_toggle_ms = millis();
-        if (millis() - last_toggle_ms >= cycle_period_ms)
-        {
-            led_state = !led_state;
-            digitalWrite(ledPin, led_state);
-            last_toggle_ms = millis();
-        }
-    }
+  // Blink the LED.
+  static bool led_state = false;
+  static unsigned long last_toggle_ms = millis();
+  if (millis() - last_toggle_ms >= cycle_period_ms) {
+    led_state = !led_state;
+    digitalWrite(ledPin, led_state);
+    last_toggle_ms = millis();
+  }
+}
 /****************************************************************
  * Global Variables
  ***************************************************************/
