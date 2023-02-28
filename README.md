@@ -11,16 +11,16 @@ I will later implement a way to use that data creatively.
 
 ## Changes Made
 
-Changed the code for automatic connection and reconnection to the server.
-added a debug function, BlinkLED with a led  that's blinking in a rate based on the RSSI value.
-added in definitions for Unlikely Maker Feather S3 board
-added more serial monitor debug outputs.
+- Changed the code for automatic connection and reconnection to the server.
+- Added a debug function, BlinkLED with a led  that's blinking in a rate based on the RSSI value.
+- Added in definitions for Unlikely Maker Feather S3 board
+- Added more serial monitor debug outputs.
 ## Tech Stack
 
 The following materials and software were used for the development:
 
-ESP32 Development Board (BLE 5.0 capable)
-PlatformIO on Visual Studio Code
+- ESP32 Development Board (BLE 5.0 capable)
+- PlatformIO on Visual Studio Code
 
 ## Original Project
 
