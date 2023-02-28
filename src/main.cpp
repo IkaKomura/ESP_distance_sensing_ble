@@ -25,14 +25,13 @@ void setup() {
     pinMode(ledPin, OUTPUT);
     blinkStartup();
 
-
-
 #elif CLIENT_MODE
     Serial.print("Setting up BLE client...");
     start_bluetooth_client();
     Serial.print("BLE client started...");
     pinMode(ledPin, OUTPUT);
     blinkStartup();
+
 #elif TTGO_CLIENT_MODE
     Serial.print("Setting up BLE ttgo client...");
     start_ttgo_bluetooth_client();
